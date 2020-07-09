@@ -3,8 +3,11 @@ package com.zc.gmail.product.controller;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.zc.gmail.product.entity.BrandEntity;
+import com.zc.gmail.product.vo.BrandVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,16 +31,27 @@ public class CategoryBrandRelationController {
     @Autowired
     private CategoryBrandRelationService categoryBrandRelationService;
 
+    @GetMapping("/brands/list")
+    public R relationBrandList(@RequestParam(value = "catId",required = true)Long catId){
+        List<BrandEntity> vos=categoryBrandRelationService.getBrandsByCatId(catId);
+        List<BrandVo> collect = vos.stream().map((item) -> {
+            BrandVo brandVo = new BrandVo();
+            brandVo.setBrandId(item.getBrandId());
+            brandVo.setBrandName(item.getName());
+            return brandVo;
+        }).collect(Collectors.toList());
+        return R.ok().put("data",collect);
+    }
 
     /**
      * 列表
      */
-    @GetMapping("category/list")
-    public R categoryList(@RequestParam  Long brandId){
+    @GetMapping("/catelog/list")
+    public R catelogList(@RequestParam("brandId") Long brandId){
 
 //        PageUtils page = categoryBrandRelationService.queryPage(params);
         List<CategoryBrandRelationEntity> data=categoryBrandRelationService.list(
-                new QueryWrapper<CategoryBrandRelationEntity>().eq("bran_id",brandId)
+                new QueryWrapper<CategoryBrandRelationEntity>().eq("brand_id",brandId)
         );
         return R.ok().put("data", data);
     }

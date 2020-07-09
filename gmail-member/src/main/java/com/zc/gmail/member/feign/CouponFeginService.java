@@ -1,4 +1,4 @@
-package com.zc.gmail.member.fegin;
+package com.zc.gmail.member.feign;
 
 import com.zc.common.utils.R;
 import org.springframework.cloud.openfeign.FeignClient;

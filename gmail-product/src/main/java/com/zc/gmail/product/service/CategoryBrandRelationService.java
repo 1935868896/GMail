@@ -2,8 +2,10 @@ package com.zc.gmail.product.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zc.common.utils.PageUtils;
+import com.zc.gmail.product.entity.BrandEntity;
 import com.zc.gmail.product.entity.CategoryBrandRelationEntity;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,5 +24,7 @@ public interface CategoryBrandRelationService extends IService<CategoryBrandRela
     void updateBrand(Long brandId, String name);
 
     void updateCategory(Long catId, String name);
+
+    List<BrandEntity> getBrandsByCatId(Long catId);
 }
 

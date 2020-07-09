@@ -1,6 +1,7 @@
 package com.zc.gmail.coupon.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.zc.common.to.SkuReductionTo;
 import com.zc.common.utils.PageUtils;
 import com.zc.gmail.coupon.entity.SkuFullReductionEntity;
 
@@ -16,5 +17,7 @@ import java.util.Map;
 public interface SkuFullReductionService extends IService<SkuFullReductionEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
+
+    void saveSkuReduction(SkuReductionTo reductionTo);
 }
 
