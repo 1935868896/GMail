@@ -1,4 +1,4 @@
-package com.zc.gmail.product.controller;
+package com.zc.gmail.product.app;
 
 import java.util.Arrays;
 import java.util.Map;
