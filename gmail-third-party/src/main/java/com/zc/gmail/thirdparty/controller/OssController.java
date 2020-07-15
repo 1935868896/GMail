@@ -26,7 +26,7 @@ public class OssController {
     @RequestMapping("oss/policy")
     protected R osspolicy()
             throws ServletException, IOException {
-        String endpoint = "oss-cn-hangzhou.aliyuncs.com";
+        String endpoint = "*";
 // 云账号AccessKey有所有API访问权限，建议遵循阿里云安全最佳实践，创建并使用RAM子账号进行API访问或日常运维，请登录 https://ram.console.aliyun.com 创建。
 
 
