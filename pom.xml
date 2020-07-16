@@ -15,16 +15,19 @@
     </parent>
     <packaging>pom</packaging>
     <modules>
-        <module>gmail-coupon</module>
+
+        <module>gmail-common</module>
         <module>gmail-member</module>
         <module>gmail-order</module>
         <module>gmail-product</module>
         <module>gmail-ware</module>
         <module>renren-fast</module>
-        <module>renren-generator</module>
+        <!--<module>renren-generator</module>-->
         <module>gmail-third-party</module>
         <module>gmail-gateway</module>
-        <module>gmail-common</module>
+        <module>gmail-search</module>
+        <module>gmail-coupon</module>
+
 
     </modules>
     <build>

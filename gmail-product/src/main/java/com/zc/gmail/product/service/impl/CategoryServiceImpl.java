@@ -1,7 +1,12 @@
 package com.zc.gmail.product.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.zc.gmail.product.service.CategoryBrandRelationService;
+import com.zc.gmail.product.vo.Catalog2Vo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -20,6 +25,7 @@ import com.zc.gmail.product.dao.CategoryDao;
 import com.zc.gmail.product.entity.CategoryEntity;
 import com.zc.gmail.product.service.CategoryService;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 
 @Service("categoryService")
@@ -28,6 +34,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 //    CategoryDao categoryDao;
     @Autowired
     CategoryBrandRelationService categoryBrandRelationService;
+    @Autowired
+    StringRedisTemplate redisTemplate;
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<CategoryEntity> page = this.page(
@@ -79,6 +87,63 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     public void updateCascade(CategoryEntity category) {
      this.updateById(category);
      categoryBrandRelationService.updateCategory(category.getCatId(),category.getName());
+    }
+
+    @Override
+    public List<CategoryEntity> getLevel1CateGorys() {
+        List<CategoryEntity> categoryEntities = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", 0));
+        return categoryEntities;
+    }
+
+    @Override
+    public Map<String,  List<Catalog2Vo>> getCatalogJson() {
+        //缓存中存取的数据都是json字符串,json是跨语言跨平台兼容的
+        //空结果缓存
+        //设置过期时间(加上随机值)
+        //加锁
+        Map<String, List<Catalog2Vo>> catalogJson=null;
+        String catelogString = redisTemplate.opsForValue().get("catelogJSON");
+        if(StringUtils.isEmpty(catelogString)){
+             catalogJson= getCatalogJsonFromDb();
+            String string = JSON.toJSONString(catalogJson);
+            redisTemplate.opsForValue().set("catelogJSON",string);
+        }else {
+            catalogJson = JSON.parseObject(catelogString,new TypeReference<Map<String, List<Catalog2Vo>>>(){});
+        }
+        return catalogJson;
+    }
+    public Map<String,  List<Catalog2Vo>> getCatalogJsonFromDb() {
+        //查出所有分类
+        List<CategoryEntity> level1CateGorys = getLevel1CateGorys();
+        Map<String, List<Catalog2Vo>> map = level1CateGorys.stream().collect(Collectors.toMap(k ->
+                        k.getCatId().toString(), v -> {
+                    List<CategoryEntity> categoryEntities = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", v.getCatId()));
+                    List<Catalog2Vo> catelog2VoList = null;
+                    if (categoryEntities != null) {
+                        catelog2VoList = categoryEntities.stream().map(l2 -> {
+                            Catalog2Vo catelog2Vo = new Catalog2Vo(v.getCatId().toString(), null, l2.getCatId().toString(), l2.getName());
+                            //找当前二级分类的三级分类封装成vo
+                            List<CategoryEntity> level3Catelog = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", l2.getCatId()));
+                            if(level3Catelog!=null){
+                                //封装成指定格式
+                                List<Catalog2Vo.Catalog3Vo> catelog3VoStream = level3Catelog.stream().map(l3 -> {
+                                    Catalog2Vo.Catalog3Vo catelog3Vo = new Catalog2Vo.Catalog3Vo(l2.getCatId().toString(),l3.getCatId().toString(),l3.getName());
+                                    return catelog3Vo;
+
+                                }).collect(Collectors.toList());
+                                catelog2Vo.setCatalog3List(catelog3VoStream);
+
+                            }
+
+                            return catelog2Vo;
+                        }).collect(Collectors.toList());
+
+                    }
+                    return catelog2VoList;
+                })
+        );
+
+        return map;
     }
 
     private List<Long> findParentPath(Long catelogId,List<Long> paths){

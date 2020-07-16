@@ -21,7 +21,7 @@ public class ElasticSaveController {
    @Autowired
    ProductSaveService productSaveService;
 
-   @PostMapping("/product")
+   @PostMapping("/save/product")
     public R  productStatusUp(@RequestBody List<SkuEsModel> skuEsModel){
         boolean b=true;
         try {

@@ -271,8 +271,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             SkuEsModel.Attrs attrs1 = new SkuEsModel.Attrs();
             BeanUtils.copyProperties(item, attrs1);
             return attrs1;
-        }).
-                collect(Collectors.toList());
+        }).collect(Collectors.toList());
         //查库存
         Map<Long, Boolean> stockMap=null;
         try {
@@ -285,7 +284,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
         //2.封装信息
         Map<Long,Boolean> finalStockMap=stockMap;
-        skuInfoEntities.stream().map(sku->{
+        uoProducts=skuInfoEntities.stream().map(sku->{
             SkuEsModel esModel = new SkuEsModel();
             BeanUtils.copyProperties(sku,esModel);
             esModel.setSkuPrice(sku.getPrice());

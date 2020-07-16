@@ -205,7 +205,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         List<Long> attrIds = entities.stream().map((item) -> {
             return item.getAttrId();
         }).collect(Collectors.toList());
-        QueryWrapper<AttrEntity> wrapper = new QueryWrapper<AttrEntity>().eq("catelog_id", catelogId).eq("attr_rype",ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode());
+        QueryWrapper<AttrEntity> wrapper = new QueryWrapper<AttrEntity>().eq("catelog_id", catelogId).eq("attr_type",ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode());
         if(attrIds!=null&&attrIds.size()>0 ){
      wrapper.notIn("attr_id",attrIds);
         }
@@ -221,6 +221,9 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
 
     @Override
     public List<Long> selectSearchAttrs(List<Long> attrIds) {
+        if(attrIds==null&&attrIds.size()==0){
+            return null;
+        }
         return baseMapper.selectSearchAttrs( attrIds);
 
     }
