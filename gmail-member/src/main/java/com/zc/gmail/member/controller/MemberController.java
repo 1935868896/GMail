@@ -3,13 +3,15 @@ package com.zc.gmail.member.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.zc.common.exception.BizCodeEnume;
+import com.zc.gmail.member.exception.PhoneExistException;
+import com.zc.gmail.member.exception.UserNameExistException;
 import com.zc.gmail.member.feign.CouponFeginService;
+import com.zc.gmail.member.vo.MemberLoginVo;
+import com.zc.gmail.member.vo.RegisterVo;
+import com.zc.gmail.member.vo.SocialUser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.zc.gmail.member.entity.MemberEntity;
 import com.zc.gmail.member.service.MemberService;
@@ -50,7 +52,42 @@ public class MemberController {
         return R.ok().put("page", page);
     }
 
+    @PostMapping("/auth2/login")
+    public R oauthlogin(@RequestBody SocialUser vo) throws Exception {
+        MemberEntity memberEntity=memberService.login(vo);
+        if(memberEntity!=null){
+            return R.ok().setData(memberEntity);
+        }else {
+            return R.error(BizCodeEnume.LOGIN_PASSWORD_INVALD_EXCEPTION.getCode(),BizCodeEnume.LOGIN_PASSWORD_INVALD_EXCEPTION.getMsg());
+        }
 
+
+    }
+    @PostMapping("/login")
+    public R login(@RequestBody MemberLoginVo vo){
+        MemberEntity memberEntity=memberService.login(vo);
+        if(memberEntity!=null){
+            return R.ok().setData(memberEntity);
+        }else {
+            return R.error(BizCodeEnume.LOGIN_PASSWORD_INVALD_EXCEPTION.getCode(),BizCodeEnume.LOGIN_PASSWORD_INVALD_EXCEPTION.getMsg());
+        }
+
+
+    }
+
+    @PostMapping("/regist")
+    public R regist(@RequestBody RegisterVo vo){
+        try {
+            memberService.regist(vo);
+        }catch (PhoneExistException e){
+            return R.error(BizCodeEnume.PHONE_EXIST_EXCEPTION.getCode(),BizCodeEnume.PHONE_EXIST_EXCEPTION.getMsg());
+
+        }catch (UserNameExistException e) {
+            return R.error(BizCodeEnume.USER_EXIST_EXCEPTION.getCode(),BizCodeEnume.USER_EXIST_EXCEPTION.getMsg());
+        }
+
+        return R.ok();
+    }
     /**
      * 信息
      */
